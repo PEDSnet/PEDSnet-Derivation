@@ -57,11 +57,11 @@ sub _build__config_file_content {
   }
 }
 
-has '_config_rdb' => ( isa => InstanceOf['Rose::DB'], is => 'rw', required => 0 );
+has 'config_rdb' => ( isa => InstanceOf['Rose::DB'], is => 'rw', required => 0 );
 
 sub ask_rdb {
   my($self, $sql, $params) = @_;
-  my $rdb = $self->_config_rdb;
+  my $rdb = $self->config_rdb;
   return unless $rdb;
 
   require Rose::DBx::CannedQuery;
