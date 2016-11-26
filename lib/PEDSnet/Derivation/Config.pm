@@ -36,7 +36,7 @@ sub build_config_stems {
   [ path(lc $class)->absolute($Bin) ];
 }
 
-has '_config_file_content' => ( isa => HashRef, is => 'ro', required => 1,
+has '_config_file_content' => ( isa => HashRef, is => 'ro', required => 0,
 				lazy => 1,
 				builder => '_build__config_file_content' );
 
@@ -54,6 +54,9 @@ sub _build__config_file_content {
 				  -LowerCaseNames => 1 } } });
   if ($conf and @$conf) {
     return { map { %{ (%$_)[1] } } @$conf };
+  }
+  else {
+    return {};
   }
 }
 
