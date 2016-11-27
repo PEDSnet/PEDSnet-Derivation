@@ -18,14 +18,14 @@ use FindBin qw( $Bin );
 use Moo 2;
 use Types::Standard qw/ ArrayRef HashRef InstanceOf /;
 
-has '_config_stems' => ( isa => ArrayRef[InstanceOf['Path::Tiny']],
-			 is => 'ro', required => 0,
-			 builder => 'build_config_stems',
-			 coerce => sub {
-			   my $vals = shift;
-			   $vals = [ $vals ] unless reftype $vals eq 'ARRAY';
-			   [ map { path($_)->absolute($Bin) } @$vals ];
-			 });
+has 'config_stems' => ( isa => ArrayRef[InstanceOf['Path::Tiny']],
+			is => 'ro', required => 0,
+			builder => 'build_config_stems',
+			coerce => sub {
+			  my $vals = shift;
+			  $vals = [ $vals ] unless reftype $vals eq 'ARRAY';
+			  [ map { path($_)->absolute($Bin) } @$vals ];
+			});
 
 sub build_config_stems {
   my $self = shift;
@@ -46,7 +46,8 @@ sub _build__config_file_content {
 
   require Config::Any;
   $conf =
-    Config::Any->load_stems({ stems => [ map { $_->canonpath } @{ $self->_config_stems } ],
+    Config::Any->load_stems({ stems => [ map { $_->canonpath }
+					 @{ $self->config_stems } ],
 			      use_ext => 1,
 			      driver_args =>
 			      { General =>

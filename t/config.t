@@ -12,13 +12,13 @@ use Path::Tiny;
 require_ok('PEDSnet::Derivation::Config');
 
 is(PEDSnet::Derivation::Config->
-   new(_config_stems => [ 'foo' ])->_config_stems->[0]->canonpath,
+   new(config_stems => [ 'foo' ])->config_stems->[0]->canonpath,
    path('foo')->absolute($FindBin::Bin)->canonpath,
    'Specified relative config_stem'
   );
 
 is(PEDSnet::Derivation::Config->
-   new(_config_stems => [ '/foo/bar' ])->_config_stems->[0]->canonpath,
+   new(config_stems => [ '/foo/bar' ])->config_stems->[0]->canonpath,
    path('/foo/bar')->absolute($FindBin::Bin)->canonpath,
    'Specified absolute config_stem'
   );
@@ -28,7 +28,7 @@ is(PEDSnet::Derivation::Config->
   our(@ISA) = ('PEDSnet::Derivation::Config');
 
   Test::More::is(PEDSnet::Derivation::Foo::Bar::Config->new->
-		 _config_stems->[0]->canonpath,
+		 config_stems->[0]->canonpath,
 		 Path::Tiny::path('foo/bar')->
 		 absolute($FindBin::Bin)->canonpath,
 		 'Default config_stem'
