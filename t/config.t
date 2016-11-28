@@ -48,4 +48,9 @@ is($conf->config_datum('test'), 'you', 'Config override');
 is($conf->config_datum('cause'), 'effect', 'Config file');
 is($conf->config_datum('latent'), 'attribute', 'Config default');
 
+$conf = new_ok('PEDSnet::Derivation::Config', [ config_section => 'hash' ]);
+is_deeply($conf->_config_file_content,
+	  { key1 => 'value1', key2 => 'value2' },
+	  'Limit to config file section');
+
 done_testing;

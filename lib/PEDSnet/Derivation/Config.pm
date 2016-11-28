@@ -16,7 +16,7 @@ use Path::Tiny qw( path );
 use FindBin qw( $Bin );
 
 use Moo 2;
-use Types::Standard qw/ ArrayRef HashRef InstanceOf /;
+use Types::Standard qw/ ArrayRef HashRef InstanceOf Str /;
 
 has 'config_stems' => ( isa => ArrayRef[InstanceOf['Path::Tiny']],
 			is => 'ro', required => 0,
@@ -36,6 +36,9 @@ sub build_config_stems {
   [ path(lc $class)->absolute($Bin) ];
 }
 
+has 'config_section' =>
+  ( isa => Str, is => 'ro', required => 0 );
+
 has '_config_file_content' => ( isa => HashRef, is => 'ro', required => 0,
 				lazy => 1,
 				builder => '_build__config_file_content' );
@@ -54,7 +57,12 @@ sub _build__config_file_content {
 				{ -MergeDuplicateBlocks => 1,
 				  -LowerCaseNames => 1 } } });
   if ($conf and @$conf) {
-    return { map { %{ (%$_)[1] } } @$conf };
+    $conf = { map { %{ (%$_)[1] } } @$conf };
+    my $section_key = $self->config_section;
+    if ($section_key) {
+      $conf = $conf->{$section_key};
+    }
+    return $conf;
   }
   else {
     return {};
