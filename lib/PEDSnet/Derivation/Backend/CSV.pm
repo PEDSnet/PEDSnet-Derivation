@@ -58,7 +58,7 @@ sub column_names {
   my $dbh = $self->rdb->dbh;
   
   my $sth = $dbh->prepare('SELECT * FROM ' . $dbh->quote_identifier($table) .
-			  ' LIMIT 1,1');
+			  ' LIMIT 1');
   $sth->execute;
   my(@cols) = @{ $sth->{NAME} };
   $sth->finish;
@@ -73,7 +73,7 @@ sub clone_table {
   return unless
     defined $dbh->do('CREATE TABLE ' . $dbh->quote_identifier($dest) .
 		     ' AS SELECT * FROM ' . $dbh->quote_identifier($src) .
-		     ' LIMIT 1,1');
+		     ' LIMIT 1');
   return unless $dbh->do('DELETE FROM ' . $dbh->quote_identifier($dest));
   return $dest;
 }
