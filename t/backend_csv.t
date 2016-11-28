@@ -47,5 +47,7 @@ $db->execute($qry, [ 10 ]);
 is_deeply($db->fetch_chunk($qry),
 	  [ { id => 1, label => 'a' },
 	    { id => 2, label => 'b' } ], 'Got full set');
+is_deeply($db->fetch_chunk($qry), [ ],
+   'Returns no data when query not active');
 
 Test::More::done_testing();

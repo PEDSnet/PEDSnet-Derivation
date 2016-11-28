@@ -105,10 +105,12 @@ sub execute {
   
 sub fetch_chunk {
   my($self, $qry, $count) = @_;
-  my @rows = $qry->sth->fetchall_arrayref({}, $count);
+  my $sth = $qry->sth;
+  return [] unless $sth and $sth->{Active};
+  my $rows = $sth->fetchall_arrayref({}, $count);
   $self->remark({ level => 3,
-		  message => 'Got ' . scalar(@rows) . ' results' });
-  @rows;
+		  message => 'Got ' . scalar(@$rows) . ' results' });
+  $rows;
 }
 
 sub store_chunk {
