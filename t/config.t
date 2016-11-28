@@ -39,6 +39,13 @@ is_deeply(PEDSnet::Derivation::Config->new->_config_file_content,
 	  { test => 'me',
 	    cause => 'effect',
 	    hash => { key1 => 'value1', key2 => 'value2' }},
-	 'Config file contents');
+	  'Config file contents');
+
+my $conf = new_ok('PEDSnet::Derivation::Config',
+		  [ config_overrides => { test => 'you' },
+		    config_defaults =>  { latent => 'attribute' } ]);
+is($conf->config_datum('test'), 'you', 'Config override');
+is($conf->config_datum('cause'), 'effect', 'Config file');
+is($conf->config_datum('latent'), 'attribute', 'Config default');
 
 done_testing;

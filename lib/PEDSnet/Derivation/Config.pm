@@ -73,4 +73,30 @@ sub ask_rdb {
       results(@{ $params || [] });
 }
 
+has 'config_overrides' =>
+  ( isa => HashRef, is => 'ro', required => 0,
+    lazy => 1, builder => 'build_config_overrides' );
+
+sub build_config_overrides { {} }
+
+has 'config_defaults' =>
+  ( isa => HashRef, is => 'ro', required => 0,
+    lazy => 1, builder => 'build_config_defaults' );
+
+sub build_config_defaults { {} }
+
+sub config_datum {
+  my($self, $key) = @_;
+  my $store = $self->config_overrides;
+
+  # pull out to avoid potentially unneeded and
+  # expensive config file parsing 
+  return $store->{$key} if exists $store->{$key};
+  
+  foreach $store ( $self->_config_file_content, $self->config_defaults ) {
+    return $store->{$key} if exists $store->{$key};
+  }
+  return;
+}
+
 1;
