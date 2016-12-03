@@ -100,7 +100,7 @@ sub execute {
     $self->logger->warn('Query failed with error: ' . DBI->errstr);
     return;
   }
-  $rv->rows;
+  $qry->sth;
 }
   
 sub fetch_chunk {
