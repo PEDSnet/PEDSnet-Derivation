@@ -84,13 +84,13 @@ sub ask_rdb {
 
 has 'config_overrides' =>
   ( isa => HashRef, is => 'ro', required => 0,
-    lazy => 1, builder => 'build_config_overrides' );
+    builder => 'build_config_overrides' );
 
 sub build_config_overrides { {} }
 
 has 'config_defaults' =>
   ( isa => HashRef, is => 'ro', required => 0,
-    lazy => 1, builder => 'build_config_defaults' );
+    builder => 'build_config_defaults' );
 
 sub build_config_defaults { {} }
 
