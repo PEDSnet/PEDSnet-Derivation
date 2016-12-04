@@ -55,6 +55,7 @@ sub _build__config_file_content {
 			      driver_args =>
 			      { General =>
 				{ -MergeDuplicateBlocks => 1,
+				  -UseApacheInclude => 1,
 				  -LowerCaseNames => 1 } } });
   if ($conf and @$conf) {
     $conf = { map { %{ (%$_)[1] } } @$conf };
