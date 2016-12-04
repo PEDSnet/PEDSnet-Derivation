@@ -164,10 +164,9 @@ sub fetch_chunk {
 }
 
 sub store_chunk {
-  my($self, $qry, $data, $opts) = @_;
+  my($self, $qry, $data, $slice) = @_;
   return unless $qry and $data;
-  $opts //= {};
-  my(@cols) = $opts->{column_names} // @{ $qry->sth->{NAME} };
+  my(@cols) = @{ $slice // $qry->sth->{NAME} // [] };
 
   if (not @cols) {
     # Driver doesn't implement NAME for insert/update
@@ -181,6 +180,13 @@ sub store_chunk {
       state $p = SQL::Parser->new;
       if ($p->parse($qry->sth->{Statement})) {
 	@cols = map { $_->{value} } @{ $p->structure->{column_defs} };
+      }
+      if (keys %$cache > 8) {
+	# Crude strategy to keep cache from expanding rapidly
+	# in app that uses many different inserts
+	my @keys = keys %$cache;
+	my $idx = $keys[int(rand @keys)];
+	delete $cache->{$idx};
       }
       $cache->{"$qry"}->{columns} = \@cols;
     }
