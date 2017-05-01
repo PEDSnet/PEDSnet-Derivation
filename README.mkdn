@@ -1,0 +1,28 @@
+# NAME
+
+PEDSnet::Derivation - Utilities for creating derived variables in the PEDSnet CDM
+
+# DESCRIPTION
+
+This module is a base class; for documentation of each tool please
+see its specific module.
+
+# BUGS AND CAVEATS
+
+Are there, for certain, but have yet to be cataloged.
+
+# REVISION
+
+$Revision$ $Date$
+
+# AUTHOR
+
+Charles Bailey, &lt;baileyc@email.chop.edu&lt;gt>
+
+# COPYRIGHT AND LICENSE
+
+Copyright (C) 2015 by Charles Bailey
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.10.0 or,
+at your option, any later version of Perl 5 you may have available.
