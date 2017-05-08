@@ -1,6 +1,4 @@
 #!perl
-#
-# $Id$
 
 use 5.010;
 use strict;
@@ -9,7 +7,40 @@ use warnings;
 package PEDSnet::Derivation::Backend::RDB;
 
 our($VERSION) = '0.01';
-our($REVISION) = '$Revision$' =~ /: (\d+)/ ? $1 : 0;
+
+=head1 NAME
+
+PEDSnet::Derivation::Backend::RDB - Use Rose::DB for derivations
+
+=head1 SYNOPSIS
+
+  package My::Derivation;
+
+  use PEDSnet::Derivation;
+  use PEDSnet::Derivation::Backend::RDB;
+
+  use Rose::DBx::MoreConfig;
+
+  my $input_rdb =
+     Rose::DBx::MoreConfig->new(type => 'src_db', domain => 'test')
+  my $output_rdb =
+     Rose::DBx::MoreConfig->new(type => 'dest_db', domain => 'test')
+  my $src =
+     PEDSnet::Derivation::Backend::CSV->new(rdb => $input_rdb);
+  my $sink =
+     PEDSnet::Derivation::Backend::CSV->new(db_dir => $output_rdb);
+
+  my $der = My::Derivation->new( src_backend => $src, sink_backend => $sink);
+  ...
+
+=head1 DESCRIPTION
+
+This L<PEDSnet::Derivation::Backend> subclass mediates access to
+relational databases via L<Rose::DB>-derived objects managing the
+database connections.  The use of L<Rose::DB> abstracts out some
+variation among DBMSs, as well as low-level connection management.
+
+=cut
 
 use Scalar::Util qw/ blessed reftype /;
 
@@ -20,6 +51,44 @@ use Rose::DBx::CannedQuery::Glycosylated;
 
 extends 'PEDSnet::Derivation::Backend';
 with 'MooX::Role::Chatty';
+
+=head2 Attributes
+
+The database is specified by setting a single attribute:
+
+=over 4
+
+=item rdb
+
+A L<Rose::DB>-derived object describing the database connection.  You
+may initialize this in one of three ways:
+
+=over 4
+
+=item *
+
+by passing in an already-constructed object
+
+=item *
+
+by passing in a hash reference with C<type> and C<domain> keys, that
+will be passed to L<Rose::DBx::MOreConfig>'s
+L<new/Rose::DBx::MoreConfig> constructor to create the object
+
+=item *
+
+by passing in a string containing a L<DBI> DSN (cf. L<parse_dsn/DBI>)
+from which an attempt is made to construct a new L<Rose::DB> object.
+The string must start with C<dbi:> to be recognized as such.
+
+As an extra convenience, if the string contains a C<schema=>I<name>
+tag, it's assumed that this describes a Postgres search path, and
+creates a L<post_connect_sql/Rose::DB> statement to set C<search_path>
+to I<name>.
+
+=back
+
+=cut
 
 has 'rdb' => ( isa => InstanceOf [ 'Rose::DB' ],
 	       is => 'ro', required => 1, lazy => 1,
@@ -69,6 +138,22 @@ sub _dsn_to_rdb {
 has '_qry_info' =>
   ( isa => HashRef, is => 'ro', default => sub { {} }, init_arg => undef );
 
+=back
+
+In addition, this class consumes L<MooX::Role::Chatty>, so you may use
+its logging attributes.
+
+=head2 Methods
+
+=over 4
+
+=item column_names($table)
+
+Return the names of the columns in I<$table>.  In scalar context,
+returns the number of columns.
+
+=cut
+
 sub column_names {
   my($self,$table) = @_;
   my $rdb = $self->rdb;
@@ -93,6 +178,17 @@ sub column_names {
   @cols;
 }
 
+=item clone_table($src, $dest)
+
+Create a new (empty) table named I<$dest> with the same structure as
+the table named I<$src>.  Note that this occurs I<within> the backend;
+it does not support creating a table in this backend based on the
+structure of a table in another backend.
+
+Returns I<$dest> on success, and nothing on failure.
+
+=cut
+
 sub clone_table {
   my($self,$src,$dest) = @_;
   $self->remark({ level => 2,
@@ -100,6 +196,7 @@ sub clone_table {
   my $dbh = $self->rdb->dbh;
   my($src_id, $dest_id);
 
+  # This dance is necessary to quote schema and table names separately
   foreach my $pair ( [ $src => \$src_id ], [ $dest => \$dest_id ]) {
     if ($pair->[0] =~ /\./) {
       ${ $pair->[1] } =
@@ -136,8 +233,38 @@ sub _can_it {
 						logger => $self->logger);
 }
 
+=item build_query($sql)
+
+=item get_query($sql)
+
+Create a new L<Rose::DBx::CannedQuery::Glycolylated> using I<$sql> as
+the query string.  Logging parameters are taken from the invocant, as
+is the target database.  If L<build_uqery> is called, a new query is
+returned each time; L</get_query> will return a cached query, if one
+exists. 
+
+=cut
+
 sub build_query { shift->_can_it('new', @_);}
 sub get_query   { shift->_can_it('new_or_cached', @_);}
+
+=item execute($query, $params)
+
+Executes I<$query>, which was constructed using L</build_query> or
+L</get_query>.  If present, I<$params> must be a reference to an array
+of bind parameters.
+
+If successful, returns an active L<DBI> statement handle.  For
+mainline data handling, you'll probably be better off using
+L</fetch_chunk> or </store_chunk> than fetching results through this
+handle directly.  But interacting with the statement handle may be
+useful for diagnostics or status checks when doing setup.
+
+On failure, returns nothing, and generates a warning.
+
+At verbosity level 2, outputs a log message with bind parameter values.
+
+=cut
 
 sub execute {
   my($self,$qry,$params) = @_;
@@ -152,7 +279,20 @@ sub execute {
   }
   $qry->sth;
 }
-  
+
+=item fetch_chunk($query, $count)
+
+Retrieves up to I<$count> rows of data from an L</execute>d
+I<$query>.
+
+Returns a reference to an array of hashes containing the
+resultset. 
+
+At verbosity level 3, outputs a message indicating how many rows were
+fetched. 
+
+=cut
+
 sub fetch_chunk {
   my($self, $qry, $count) = @_;
   my $sth = $qry->sth;
@@ -162,6 +302,29 @@ sub fetch_chunk {
 		  message => 'Got ' . scalar(@$rows) . ' results' });
   $rows;
 }
+
+=item store_chunk($query, $data)
+
+Writes out the contents of I<$data> using I<$query>.  The structure of
+I<$data> is similar to that in L</fetch_chunk>: a reference to an
+array of rows, each of which is a hash reference of column names and
+values.
+
+Column names are looked up in I<$query>, and for each row in I<$data>,
+the relevant columns are extracted, and I<$query> is executed with
+those values as bind parameters.  (As a word to the wise, remember
+that L<Rose::DBx::CannedQuery> downcases column names by default when
+fetching data; make sure the keys in I<$data> and the column names in
+I<$query> are matched.)  Some DBD drivers don't support introspection
+on inserts or updates, in which case a best effort is made to figure
+out the column names using L<SQL::Parser>.  Hopefully, this won't
+affect you, but if you see mismatches between your SQL and what's
+stored, this is something to check.
+
+Returns the number of rows written.  Generates a warning if that's not
+the same as the number of rows in I<$data>.
+
+=cut
 
 sub store_chunk {
   my($self, $qry, $data, $slice) = @_;
@@ -205,3 +368,29 @@ sub store_chunk {
 
 __END__
 
+=back
+
+=head1 BUGS AND CAVEATS
+
+Are there, for certain, but have yet to be cataloged.
+
+=head1 VERSION
+
+version 0.01
+
+=head1 AUTHOR
+
+Charles Bailey <cbail@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2016 by Charles Bailey
+
+This software may be used under the terms of the Artistic License or
+the GNU General Public License, as the user prefers.
+
+This code was written at the Children's Hospital of Philadelphia as
+part of L<PCORI|http://www.pcori.org>-funded work in the
+L<PEDSnet|http://www.pedsnet.org> Data Coordinating Center.
+
+=cut

@@ -1,6 +1,5 @@
 #!perl
-#
-# $Id$
+
 
 use 5.010;
 use strict;
@@ -28,6 +27,41 @@ is taken (referred to as the "source backend") or output is written
 (referred to as the "sink backend").  For documentation of each
 backend type please see its specific module.
 
+There are intentionally no required capabilities for all
+L<PEDSnet::Derviation::Backend>s, in order to allow flexibility to
+meet the needs specific needs of different derivations.  However, to
+be useful, you will probably want you backend to do at least some of
+the following:
+
+=over 4
+
+=item *
+
+Retrieve specific data (source backends)
+
+=item *
+
+Retrieve data other than that involved in computing the derived values
+(e.g. counts or ranges used to prepare tasks) (source backend)
+
+=item *
+
+Write specific data (sink backends)
+
+=item *
+
+Create a container into which to put data (sink backends)
+
+=item *
+
+Mutate data (combined backends)
+
+=item *
+
+Retrieve some metadata about the data source (e.g. schema)
+
+=back
+
 =head1 BUGS AND CAVEATS
 
 Are there, for certain, but have yet to be cataloged.
@@ -43,10 +77,6 @@ Charles Bailey, E<lt>baileyc@email.chop.edu<gt>
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (C) 2015 by Charles Bailey
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
 
 =cut
 
