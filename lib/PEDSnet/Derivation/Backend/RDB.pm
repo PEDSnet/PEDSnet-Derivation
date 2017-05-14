@@ -72,8 +72,8 @@ by passing in an already-constructed object
 =item *
 
 by passing in a hash reference with C<type> and C<domain> keys, that
-will be passed to L<Rose::DBx::MOreConfig>'s
-L<new/Rose::DBx::MoreConfig> constructor to create the object
+will be passed to L<Rose::DBx::MoreConfig>'s
+L<Rose::DBx::MoreConfig/new> constructor to create the object
 
 =item *
 
@@ -83,7 +83,7 @@ The string must start with C<dbi:> to be recognized as such.
 
 As an extra convenience, if the string contains a C<schema=>I<name>
 tag, it's assumed that this describes a Postgres search path, and
-creates a L<post_connect_sql/Rose::DB> statement to set C<search_path>
+creates a L<Rose::DB/post_connect_sql> statement to set C<search_path>
 to I<name>.
 
 =back

@@ -77,7 +77,7 @@ specifying either of two attributes:
 =item db_dir
 
 A string specifting the path to the directory containing the CSV
-files.  It will be passed unmodified to L<f_dir/DBD::CSV>, and hence
+files.  It will be passed unmodified to L<DBD::CSV/f_dir>, and hence
 will default to the current working directory.
 
 =cut

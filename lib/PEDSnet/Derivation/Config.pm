@@ -114,7 +114,7 @@ array of L<Path::Tiny> paths to potential configuration files. As the
 name implies, these are handed off to L<Config::Any> if data that
 might be in configuratin files is requested.
 
-Values provided during construction are passed to L<path/Path::Tiny>,
+Values provided during construction are passed to L<Path::Tiny/path>,
 and relative paths are converted to absolute using the location of the
 running application.  This lets you pass in (possibly relative)
 strings and get the right output.

@@ -8,7 +8,6 @@ use warnings;
 package PEDSnet::Derivation;
 
 our($VERSION) = '0.01';
-our($REVISION) = '$Revision$' =~ /: (\d+)/ ? $1 : 0;
 
 use Module::Runtime qw( use_module );
 
