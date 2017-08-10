@@ -21,6 +21,10 @@ my %module_build_args = (
   "dist_version" => "0.01",
   "license" => "open_source",
   "module_name" => "PEDSnet::Derivation",
+  "recommends" => {
+    "Config::General" => 0,
+    "Cpanel::JSON::XS" => 0
+  },
   "recursive_test_files" => 1,
   "requires" => {
     "Config::Any" => 0,
@@ -46,6 +50,7 @@ my %module_build_args = (
     "ExtUtils::MakeMaker" => 0,
     "File::Spec" => 0,
     "File::Temp" => 0,
+    "JSON" => 0,
     "Rose::DBx::MoreConfig" => 0,
     "Test::More" => 0
   }
@@ -58,6 +63,7 @@ my %fallback_build_requires = (
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "File::Temp" => 0,
+  "JSON" => 0,
   "Module::Build" => "0.28",
   "Rose::DBx::MoreConfig" => 0,
   "Test::More" => 0
