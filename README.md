@@ -31,11 +31,11 @@ If you have a recent version (5.10 or later is required; 5.24 or later is prefer
 
 ```
 # Interactive package installer distributed with Perl
-cpan PEDSnet::Derivation
+# cpan PEDSnet::Derivation
 # cpanminus - released version
-cpanm PEDSnet::Derivation
+# cpanm PEDSnet::Derivation
 # cpanminus - current development version
-cpanm https://github.com/PEDSnet/PEDSnet-Derivation
+cpanm git://github.com/PEDSnet/PEDSnet-Derivation
 ```
 
 #### New Perl5 Installation
@@ -50,9 +50,9 @@ perlbrew init
 perlbrew install perl-stable
 perlbrew install-cpanm
 # Install PEDSnet::Derivation
-cpanm PEDSnet::Derivation
+# cpanm PEDSnet::Derivation
 # OR, if you want the bleeding edge
-cpanm https://github.com/PEDSnet/PEDSnet-Derivation
+cpanm git://github.com/PEDSnet/PEDSnet-Derivation
 ```
 
 If building from source isn't an option for you, visit http://www.perl.org/get.html for binary versions, each of which comes with a package manager that should let you add on the released version of `PEDSnet::Derivation`.
